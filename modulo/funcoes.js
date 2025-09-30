@@ -49,7 +49,7 @@ const getUserByIdentifier = (dadosDoUsuarios) => {
     }
     dados.contatos['whats-users'].forEach((usuario) => {
         //Comparando os telefones dos usuários com o recebido no paramentro da função
-        if (usuario.number === dadosDoUsuarios || usuario.nickname === dadosDoUsuarios || usuario.account === dadosDoUsuarios) {
+        if (usuario.number === dadosDoUsuarios) {
 
             mensagem.dados_user.push({
                 number: usuario.number,
@@ -65,7 +65,7 @@ const getUserByIdentifier = (dadosDoUsuarios) => {
 
 
     })
-     // Checa se `user_contato` possui dados; ficará vazio se os argumentos não forem encontrados ou forem inválidos.
+    // Checa se `user_contato` possui dados; ficará vazio se os argumentos não forem encontrados ou forem inválidos.
     if (mensagem.dados_user.length === 0)
         return MENSAGEM_ERRO[1]
     else
@@ -86,7 +86,7 @@ const getUserContacts = (dadosDoUsuario) => {
     }
     dados.contatos['whats-users'].forEach((usuario) => {
         //Comparando os telefones dos usuários com o recebido no paramentro da função
-        if (usuario.number === dadosDoUsuario || usuario.nickname === dadosDoUsuario || usuario.account) {
+        if (usuario.number === dadosDoUsuario) {
 
             //Percorrendo o array de contatos e trazendo suas informações
             usuario.contacts.forEach((contatos) => {
@@ -121,7 +121,7 @@ const getUserMessages = (dadosDoUsuario) => {
     }
     dados.contatos['whats-users'].forEach((usuario) => {
         //
-        if (usuario.number === dadosDoUsuario || usuario.nickname === dadosDoUsuario || usuario.account === dados) {
+        if (usuario.number === dadosDoUsuario) {
 
             usuario.contacts.forEach((contatos) => {
 
@@ -139,16 +139,18 @@ const getUserMessages = (dadosDoUsuario) => {
         }
 
     })
-     // Checa se `user_contato` possui dados; ficará vazio se os argumentos não forem encontrados ou forem inválidos.
+    // Checa se `user_contato` possui dados; ficará vazio se os argumentos não forem encontrados ou forem inválidos.
     if (mensagem.user_mensagem.length === 0)
         return MENSAGEM_ERRO[1]
     else
-    return mensagem
-   
+        return mensagem
+
 }
 
 //Lista as mensagens do usuário com um dos seus contatos
 const getContactMessages = (dadosDoUsuario, dadosDoContato) => {
+    if (!dadosDoContato || dadosDoContato)
+        return MENSAGEM_ERRO[2]
     let mensagem = {
         status: true, status_code: 200, development: "Breno Oliveira Assis Reis", nome_contato: "", telefone_contato: "", user_mensagem: []
 
@@ -156,12 +158,12 @@ const getContactMessages = (dadosDoUsuario, dadosDoContato) => {
     //percorrendo o array de usuários
     dados.contatos['whats-users'].forEach((usuario) => {
         //Criando um if para o número do usuário passado com segundo argumento da fução, dessa forma só o verdadeiro irá passar
-        if (usuario.number === dadosDoUsuario || usuario.nickname === dadosDoUsuario || usuario.account === dadosDoUsuario) {
+        if (usuario.number === dadosDoUsuario) {
 
             //percorrrendo o array de contatos do usuário
             usuario.contacts.forEach((contato) => {
                 //Criando um if para o número do contato passado com segundo argumento da fução, dessa forma só o verdadeiro irá passar.
-                if (contato.number === dadosDoContato || contato.name === dadosDoContato) {
+                if (contato.number === dadosDoContato) {
                     //percorrendo o array de mensagens do usuário com o contato
                     contato.messages.forEach((mensagensTrocadas) => {
 
@@ -187,7 +189,7 @@ const getContactMessages = (dadosDoUsuario, dadosDoContato) => {
     if (mensagem.user_mensagem.length === 0)
         return MENSAGEM_ERRO[1]
     else
-    return mensagem
+        return mensagem
 
 
 }
@@ -195,7 +197,7 @@ const getContactMessages = (dadosDoUsuario, dadosDoContato) => {
 //Lista as mensagem com base na palavra ou letra chave
 const getMessagesByKeyword = (dadosDoUsuario, dadosDocontato, mensagemChave) => {
     if (!dadosDoUsuario || !dadosDocontato || !mensagemChave)
-        return MENSAGEM_ERRO[1]
+        return MENSAGEM_ERRO[2]
     let mensagem = {
         status: true, status_code: 200, development: "Breno Oliveira Assis Reis", nome_contato: "", telefone_contato: "", user_mensagem: []
 
@@ -204,12 +206,12 @@ const getMessagesByKeyword = (dadosDoUsuario, dadosDocontato, mensagemChave) => 
     dados.contatos['whats-users'].forEach((usuario) => {
 
         //Criando um if para o número do usuário passado como primeiro argumento da função
-        if (usuario.number === dadosDoUsuario|| usuario.account=== dadosDoUsuario||usuario.nickname===dadosDoUsuario) {
+        if (usuario.number === dadosDoUsuario) {
 
             //percorrrendo o array de contatos do usuário
             usuario.contacts.forEach((contato) => {
                 //Criando um if para o número do contato passado com segundo argumento da fução
-                if (contato.number === dadosDocontato||contato.name===dadosDocontato) {
+                if (contato.number === dadosDocontato) {
 
                     //Criando uma variável que vai guardar o resutado do filter com base na mensagemKey(palavra chave) enviada como terceiro argumento da função
                     //Filter retorna um array  de elementos que cumpriram uma condição, nesse caso são mensagens que inclui uma palavra especifica
@@ -242,6 +244,7 @@ const getMessagesByKeyword = (dadosDoUsuario, dadosDocontato, mensagemChave) => 
 
 
 }
+
 
 module.exports = {
     getAllUsers,
