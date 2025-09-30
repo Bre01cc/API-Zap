@@ -92,5 +92,8 @@ Para iniciar a API localmente, execute:
 ```bash
 node app.js
 ```
+## Render 
+### Link para testar na web:
+https://api-zap-7gjg.onrender.com/v1/whatszap
 ## Autor
 [Breno Oliveira Assis Reis](https://www.linkedin.com/in/breno-oliveira-assis-reis-203010351/)
