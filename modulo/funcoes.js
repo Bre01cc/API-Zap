@@ -1,3 +1,10 @@
+/****************************************************************************************************************************
+ * Objetivo: Arquivo de funções para gerenciar a API do WhatsZap.
+ * Data: 24/09/2025
+ * Atutor:Breno
+ * Versão:1.0
+ ****************************************************************************************************************************
+ */
 
 const MENSAGEM_ERRO = [
 
@@ -23,7 +30,7 @@ const { get } = require('http')
 const dados = require('./contatos.js')
 
 //Retorna todos os usuários
-const getAllUser = () => {
+const getAllUsers = () => {
 
     let mensagem = {
         status: true, status_code: 200, development: "Breno Oliveira Assis Reis", dados_user: dados.contatos['whats-users']
@@ -33,67 +40,96 @@ const getAllUser = () => {
 }
 
 //Retorna as informações de um usuário com base no seu número
-const getUser = (number) => {
+const getUserByIdentifier = (dadosDoUsuarios) => {
+    if (!dadosDoUsuarios)
+        return MENSAGEM_ERRO[2]
     let mensagem = {
         status: true, status_code: 200, development: "Breno Oliveira Assis Reis", dados_user: []
 
     }
-    dados.contatos['whats-users'].forEach((item) => {
-        if (item.number === number) {
+    dados.contatos['whats-users'].forEach((usuario) => {
+        //Comparando os telefones dos usuários com o recebido no paramentro da função
+        if (usuario.number === dadosDoUsuarios || usuario.nickname === dadosDoUsuarios || usuario.account === dadosDoUsuarios) {
 
             mensagem.dados_user.push({
-                number: item.number,
-                nome: item.account,
-                nick: item.nickname,
-                imagem: item['profile-image'],
-                background: item.background,
-                data_criacao: item['created-since'].start,
-                data_encerramento: item['created-since'].end
+                number: usuario.number,
+                nome: usuario.account,
+                nick: usuario.nickname,
+                imagem: usuario['profile-image'],
+                background: usuario.background,
+                data_criacao: usuario['created-since'].start,
+                data_encerramento: usuario['created-since'].end
             })
         }
 
+
+
     })
-    return mensagem
+     // Checa se `user_contato` possui dados; ficará vazio se os argumentos não forem encontrados ou forem inválidos.
+    if (mensagem.dados_user.length === 0)
+        return MENSAGEM_ERRO[1]
+    else
+        return mensagem
+
 }
 
+
 //Retorna os contados de um usuário com base no seu número
-const getUserContato = (number) => {
+const getUserContacts = (dadosDoUsuario) => {
+    //caso nada seja enviado no parametro da função
+    if (!dadosDoUsuario)
+        return MENSAGEM_ERRO[2]
+
     let mensagem = {
         status: true, status_code: 200, development: "Breno Oliveira Assis Reis", user_contato: []
 
     }
-    dados.contatos['whats-users'].forEach((item) => {
-        if (item.number === number) {
+    dados.contatos['whats-users'].forEach((usuario) => {
+        //Comparando os telefones dos usuários com o recebido no paramentro da função
+        if (usuario.number === dadosDoUsuario || usuario.nickname === dadosDoUsuario || usuario.account) {
 
-            item.contacts.forEach((item) => {
+            //Percorrendo o array de contatos e trazendo suas informações
+            usuario.contacts.forEach((contatos) => {
                 mensagem.user_contato.push({
-                    nome: item.name,
-                    imagem: item.image,
-                    descricao: item.description,
-                    telefone: item.number
+                    nome: contatos.name,
+                    imagem: contatos.image,
+                    descricao: contatos.description,
+                    telefone: contatos.number
                 })
             })
 
         }
+
     })
-    return mensagem
+    // Checa se `user_contato` possui dados; ficará vazio se os argumentos não forem encontrados ou forem inválidos.
+    if (mensagem.user_contato.length === 0)
+        return MENSAGEM_ERRO[1]
+    else
+        return mensagem
 }
+
+
 //Retorna todas as mensagens de um usuário com seus respectivos contatos, tudo isso com base no seu número
-const getUserMensagem = (number) => {
+const getUserMessages = (dadosDoUsuario) => {
+
+    if (!dadosDoUsuario)
+        return MENSAGEM_ERRO[2]
+
     let mensagem = {
         status: true, status_code: 200, development: "Breno Oliveira Assis Reis", user_mensagem: []
 
     }
-    dados.contatos['whats-users'].forEach((item1) => {
-        if (item1.number === number) {
+    dados.contatos['whats-users'].forEach((usuario) => {
+        //
+        if (usuario.number === dadosDoUsuario || usuario.nickname === dadosDoUsuario || usuario.account === dados) {
 
-            item1.contacts.forEach((item2) => {
+            usuario.contacts.forEach((contatos) => {
 
-                item2.messages.forEach((item3) => {
+                contatos.messages.forEach((mensagens) => {
                     mensagem.user_mensagem.push({
-                        remetente: item3.sender,
-                        mensagem: item3.content,
-                        horario: item3.time
+                        remetente: mensagens.sender,
+                        mensagem: mensagens.content,
+                        horario: mensagens.time
 
                     })
                 })
@@ -101,77 +137,45 @@ const getUserMensagem = (number) => {
             })
 
         }
+
     })
+     // Checa se `user_contato` possui dados; ficará vazio se os argumentos não forem encontrados ou forem inválidos.
+    if (mensagem.user_mensagem.length === 0)
+        return MENSAGEM_ERRO[1]
+    else
     return mensagem
+   
 }
 
-const getContatoMensagem = (numberUser, numberContato) => {
-    let mensagem = {
-        status: true, status_code: 200, development: "Breno Oliveira Assis Reis", nome_contato: "", telefone_contato: "", user_mensagem: []
-
-    }
-    //percorrendo o array de usuários
-    dados.contatos['whats-users'].forEach((item1) => {
-        //Criando um if para o número do usuário passado com segundo argumento da fução, dessa forma só o verdadeiro irá passar
-        if (item1.number === numberUser) {
-
-            //percorrrendo o array de contatos do usuário
-            item1.contacts.forEach((item2) => {
-                //Criando um if para o número do contato passado com segundo argumento da fução, dessa forma só o verdadeiro irá passar.
-                if (item2.number === numberContato) {
-                    //percorrendo o array de mensagens do usuário com o contato
-                    item2.messages.forEach((item3) => {
-
-                        mensagem.nome_contato = item2.name
-                        mensagem.telefone_contato = item2.number
-                        mensagem.user_mensagem.push({
-                            remetente: item3.sender,
-                            mensagem: item3.content,
-                            horario: item3.time
-
-                        })
-
-
-                    })
-                }
-
-
-            })
-
-        }
-    })
-    return mensagem
-
-}
-
-const getMensagemKey = (numberUser, numberContato, mensagemKey) => {
+//Lista as mensagens do usuário com um dos seus contatos
+const getContactMessages = (dadosDoUsuario, dadosDoContato) => {
     let mensagem = {
         status: true, status_code: 200, development: "Breno Oliveira Assis Reis", nome_contato: "", telefone_contato: "", user_mensagem: []
 
     }
     //percorrendo o array de usuários
     dados.contatos['whats-users'].forEach((usuario) => {
-        //Criando um if para o número do usuário passado como primeiro argumento da função
-        if (usuario.number === numberUser) {
+        //Criando um if para o número do usuário passado com segundo argumento da fução, dessa forma só o verdadeiro irá passar
+        if (usuario.number === dadosDoUsuario || usuario.nickname === dadosDoUsuario || usuario.account === dadosDoUsuario) {
 
             //percorrrendo o array de contatos do usuário
             usuario.contacts.forEach((contato) => {
-                //Criando um if para o número do contato passado com segundo argumento da fução
-                if (contato.number === numberContato) {
+                //Criando um if para o número do contato passado com segundo argumento da fução, dessa forma só o verdadeiro irá passar.
+                if (contato.number === dadosDoContato || contato.name === dadosDoContato) {
+                    //percorrendo o array de mensagens do usuário com o contato
+                    contato.messages.forEach((mensagensTrocadas) => {
 
-                    //Criando uma variável que vai guardar o resutado do filter com base na mensagemKey(palavra chave) enviada como terceiro argumento da função
-                    //Filter retorna um array  de elementos que cumpriram uma condição, nesse caso são mensagens que inclui uma palavra especifica
-                    let busca = contato.messages.filter(mensagem => mensagem.content.includes(mensagemKey))
-
-                    //percorrendo o array criado pelo filter e adicionando
-                    busca.forEach((mensagemContato) => {
-
+                        mensagem.nome_contato = contato.name
+                        mensagem.telefone_contato = contato.number
                         mensagem.user_mensagem.push({
-                            mensagem_chave_busca: mensagemContato.content
+                            remetente: mensagensTrocadas.sender,
+                            mensagem: mensagensTrocadas.content,
+                            horario: mensagensTrocadas.time
+
                         })
 
+
                     })
-                    console.log(mensagem)
                 }
 
 
@@ -179,36 +183,72 @@ const getMensagemKey = (numberUser, numberContato, mensagemKey) => {
 
         }
     })
-    // return mensagem
+    // Checa se `user_contato` possui dados; ficará vazio se os argumentos não forem encontrados ou forem inválidos.
+    if (mensagem.user_mensagem.length === 0)
+        return MENSAGEM_ERRO[1]
+    else
+    return mensagem
 
 
 }
 
-getMensagemKey('11987876567', '26999999963', 'h')
-// console.log(getMensagemKey('11987876567','26999999963','?'))
+//Lista as mensagem com base na palavra ou letra chave
+const getMessagesByKeyword = (dadosDoUsuario, dadosDocontato, mensagemChave) => {
+    if (!dadosDoUsuario || !dadosDocontato || !mensagemChave)
+        return MENSAGEM_ERRO[1]
+    let mensagem = {
+        status: true, status_code: 200, development: "Breno Oliveira Assis Reis", nome_contato: "", telefone_contato: "", user_mensagem: []
 
-// console.log(dados.contatos['whats-users'][0].contacts[0].messages.find(mesagem => mesagem.content.includes('ooo')))
+    }
+    //percorrendo o array de usuários
+    dados.contatos['whats-users'].forEach((usuario) => {
+
+        //Criando um if para o número do usuário passado como primeiro argumento da função
+        if (usuario.number === dadosDoUsuario|| usuario.account=== dadosDoUsuario||usuario.nickname===dadosDoUsuario) {
+
+            //percorrrendo o array de contatos do usuário
+            usuario.contacts.forEach((contato) => {
+                //Criando um if para o número do contato passado com segundo argumento da fução
+                if (contato.number === dadosDocontato||contato.name===dadosDocontato) {
+
+                    //Criando uma variável que vai guardar o resutado do filter com base na mensagemKey(palavra chave) enviada como terceiro argumento da função
+                    //Filter retorna um array  de elementos que cumpriram uma condição, nesse caso são mensagens que inclui uma palavra especifica
+                    let busca = contato.messages.filter(mensagem => mensagem.content.includes(mensagemChave))
+
+                    //percorrendo o array guardado na variavel busca já que ele pode devolver mais de uma mensagem pelo filter
+                    busca.forEach((mensagemContato) => {
+
+                        //criando atributos e adicionando os valores
+                        mensagem.nome_contato = contato.name
+                        mensagem.telefone_contato = contato.number
+                        mensagem.user_mensagem.push({
+                            remetente: mensagemContato.sender,
+                            mensagem_chave_busca: mensagemContato.content,
+                            horario: mensagemContato.time
+                        })
+
+                    })
+                }
 
 
-//  if(mensagem.content==busca.content)
-//                         console.log(mensagem.content)
+            })
+
+        }
+    })
+    if (mensagem.user_mensagem.length === 0)
+        return MENSAGEM_ERRO[1]
+    else
+        return mensagem
 
 
+}
 
+module.exports = {
+    getAllUsers,
+    getUserByIdentifier,
+    getContactMessages,
+    getUserContacts,
+    getUserMessages,
+    getMessagesByKeyword
+}
 
-
-
-
-
-
-
-
-
-
-
-// console.log(dados.contatos['whats-users'][0].contacts.name)
-
-// console.log(dados.contatos['whats-users'][0].contacts[0].messages)
-// console.log(getUserContato("11987876567"))
-// console.log(getUser("11987876567"))
-// console.log(getAllDados())
